@@ -3,7 +3,6 @@ from flask_cors import CORS
 import hashlib
 from jwt_utils import build_token,decode_token,JwtError
 from question_model import Question
-import sqlite3
 
 
 app = Flask(__name__)
