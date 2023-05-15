@@ -13,7 +13,7 @@ class JwtError(Exception):
 
 
 secret = "HoopsMaster, le quiz ultime de basket-ball !"
-expiration_in_seconds = 3600
+expiration_in_seconds = 36000000
 
 
 def build_token():

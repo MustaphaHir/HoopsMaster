@@ -5,6 +5,7 @@ from jwt_utils import build_token,decode_token,JwtError
 from question_model import Question
 
 
+
 app = Flask(__name__)
 CORS(app)
 
@@ -36,7 +37,7 @@ def Authenticate():
 
 	
 
-@app.route('/post-question', methods=['POST'])
+@app.route('/questions', methods=['POST'])
 def post_question():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
@@ -49,28 +50,37 @@ def post_question():
         return jsonify({'error': str(e)}), 401
 
     #récupèrer un l'objet json envoyé dans le body de la requète
-    question = request.get_json()
+    data=request.get_json()
+
+    # créer un nouvel objet Question à partir des données JSON
+    question = Question.from_json(data)
+
 
     question.add_question()
 
     return jsonify({'id': question.id}), 200
 
 
-@app.route('/questions/<int:id>', methods=['POST'])
+@app.route('/questions/<int:id>', methods=['GET'])
 def get_questions_by_id(id):
     question = Question.get_question_by_id(id)
     if question:
-        return jsonify({'question': question.to_json()})
+        return question.to_json(), 200
     else:
         return jsonify({'message': 'Question not found'}), 404
     
 
 
-@app.route('/questions?<int:position>', methods=['POST'])
-def get_questions_by_position(position):
-    question = Question.get_question_by_position(position)
+@app.route('/questions', methods=['GET'])
+def get_questions_by_position():
+    position = request.args.get('position')
+    return get_questions_by_id(Question.find_id_from_position(position))
+
+@app.route('/questions/<int:id>', methods=['PUT'])
+def update_question_by_id(id):
+    question = Question.get_question_by_id(id)
     if question:
-        return jsonify({'question': question.to_json()})
+        return question.to_json(), 200
     else:
         return jsonify({'message': 'Question not found'}), 404
 
