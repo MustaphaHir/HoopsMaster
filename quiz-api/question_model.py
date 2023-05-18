@@ -78,6 +78,19 @@ class Question:
         db_connection.commit()
         db_connection.close()
 
+
+    def getquizinfo():
+        db_connection = sqlite3.connect('quizbasket.db')
+        c = db_connection.cursor()
+
+        c.execute('''SELECT COUNT(*) FROM question''')
+        num_questions = c.fetchone()[0]
+
+        db_connection.close()
+
+        return num_questions
+    
+
     """
     def set_question_todb(self,id):
         db_connection = sqlite3.connect('quizbasket.db')
@@ -109,12 +122,16 @@ class Question:
 
         c = db_connection.cursor()
 
+        c.execute('''SELECT position FROM question WHERE id = ?''', (id,))
+        current_position = c.fetchone()[0]
+
         if(id=="all"):
             c.execute(f'''DELETE FROM question''')
             c.execute(f'''DELETE FROM possible_answers''')
         else:
             c.execute(f'''DELETE FROM question WHERE id  = {id}''')
             c.execute(f'''DELETE FROM possible_answers WHERE question_id  = {id}''')
+            c.execute('''UPDATE question SET position = position - 1 WHERE position >= ?''', (current_position,))
 
         # get the number of rows affected by the query
         num_rows_deleted = c.rowcount
@@ -228,24 +245,34 @@ class Question:
         return row 
 
 
+
+
+
+
+
     def update_question_todb(self, id):
         db_connection = sqlite3.connect('quizbasket.db')
         db_connection.isolation_level = None
         c = db_connection.cursor()
 
-        # Check if a question already exists at the desired position
-        c.execute('''SELECT * FROM question WHERE position = ?''', (self.position,))
-        existing_question = c.fetchone()
+        # Get the current position of the question
+        c.execute('''SELECT position FROM question WHERE id = ?''', (id,))
+        current_position = c.fetchone()[0]
 
-        if existing_question:
-            # If a question already exists at the desired position, increment the position of all questions after that position by 1
-            c.execute('''SELECT id FROM question WHERE position >= ? ORDER BY position DESC''', (self.position,))
-            for row in c.fetchall():
-                c.execute('''UPDATE question SET position = position + 1 WHERE id = ?''', (row[0],))
+        if self.position != current_position:
+            if self.position > current_position:
+                # Shift all questions with positions between the current position and the new position down by 1
+                c.execute('''UPDATE question SET position = position - 1 WHERE position > ? AND position <= ?''', (current_position, self.position))
+                c.execute('''UPDATE question SET position = ? WHERE id = ?''', (self.position, id))
+            elif self.position < current_position:
+                # Shift all questions with positions between the new position and the current position up by 1
+                c.execute('''UPDATE question SET position = position + 1 WHERE position >= ? AND position < ?''', (self.position, current_position))
+                c.execute('''UPDATE question SET position = ? WHERE id = ?''', (self.position, id))
 
-        # Update question
-        c.execute('UPDATE question SET position=?, title=?, text=?, image=? WHERE id=?',
-                (self.position, self.title, self.text, self.image, id))
+
+                # Update question
+        c.execute('UPDATE question SET title=?, text=?, image=? WHERE id=?', ( self.title, self.text, self.image, id))
+        
 
         # Delete existing possible answers for the question
         c.execute('DELETE FROM possible_answers WHERE question_id=?', (id,))
@@ -259,6 +286,7 @@ class Question:
 
         db_connection.commit()
         db_connection.close()
+
 
 
 
@@ -312,3 +340,187 @@ class PossibleAnswer:
                 possible_answers.append(possible_answer)
 
             return possible_answers
+    
+
+
+class PossibleAnswer:
+    def __init__(self, id, text, is_correct, question_id):
+        self.id = id
+        self.text = text
+        self.is_correct = is_correct
+        self.question_id = question_id
+        
+
+    def to_json(self):
+        if(self.is_correct==0):
+               booleenreponse= False
+        else:
+                booleenreponse= True
+
+        return {
+            'id': self.id,
+            'text': self.text,
+            'isCorrect': booleenreponse,
+            'question_id': self.question_id
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        id = json_data.get('id')
+        question_id = json_data.get('question_id')
+        text = json_data.get('text')
+        is_correct = json_data.get('isCorrect')
+
+        return PossibleAnswer(id, text,is_correct , question_id)
+    
+    def get_possible_answers_by_question_id(question_id):
+            db_connection = sqlite3.connect('quizbasket.db')
+            db_connection.isolation_level = None
+
+            c = db_connection.cursor()
+            c.execute('SELECT * FROM possible_answers WHERE question_id=?', (question_id,))
+
+            rows = c.fetchall()
+
+            db_connection.close()
+
+            if not rows:
+                return None
+
+            possible_answers = []
+            for row in rows:
+                possible_answer = PossibleAnswer(*row)
+                possible_answers.append(possible_answer)
+
+            return possible_answers
+    
+
+
+class Participations:
+    def __init__(self, id, playerName=None, answers=[], score=0):
+        self.id = id
+        self.playerName = playerName
+        self.answers = answers
+        self.score = score
+
+
+    def to_json(self):
+        answers = [answer for answer in self.answers] if self.answers else []
+        return {
+            'playerName': self.playerName,
+            'answers': answers,
+            'score': self.score
+        }
+    
+
+    @staticmethod
+    def from_json(json_data):
+        id = json_data.get('id')
+        playerName = json_data.get('playerName')
+        answers = json_data.get('answers')
+        score = json_data.get('score')
+        return Participations(id, playerName, answers, score)
+    
+
+    def get_number_of_participants(self):
+        db_connection = sqlite3.connect('quizbasket.db')
+        db_connection.isolation_level = None
+        c = db_connection.cursor()
+        c.execute('''SELECT COUNT(*) FROM participations''')
+        num_participations = c.fetchone()[0]
+        db_connection.close()
+        return num_participations
+    
+    
+    def get_score_of_participants(self):
+        db_connection = sqlite3.connect('quizbasket.db')
+        db_connection.isolation_level = None
+        c = db_connection.cursor()
+
+        c.execute('''SELECT answer FROM participant_answers WHERE participation_id = ?''', (self.id,))
+        participant_answers = c.fetchall()
+        position = 0
+        self.score = 0
+        for answer in participant_answers:
+            position += 1
+            c.execute("""SELECT row_num
+                FROM (
+                SELECT ROW_NUMBER() OVER (ORDER BY id) AS row_num, is_correct
+                FROM possible_answers
+                WHERE question_id = ?
+                ) AS numbered_rows
+                WHERE is_correct = 1""", (Question.find_id_from_position(position),))
+            
+            true_answer = c.fetchone()[0]
+            if true_answer==answer[0]:
+                 self.score+=1
+
+        db_connection.close()
+
+        return self.score
+
+    
+
+    def add_participant_to_db(self):
+        db_connection = sqlite3.connect('quizbasket.db')
+        db_connection.isolation_level = None
+        c = db_connection.cursor()
+        c.execute('''INSERT INTO participations (playerName) VALUES (?)''',
+                  (self.playerName, ))
+        self.id = c.lastrowid
+        for answer_data in self.answers:
+            c.execute('''INSERT INTO participant_answers (participation_id, answer) VALUES (?, ?)''',
+                      (self.id, answer_data))
+        
+        #self.score = Participations.get_score_of_participants(self.id)
+        
+        c.execute('''UPDATE participations SET score = ? WHERE id = ?''', (self.get_score_of_participants(), self.id))
+
+        
+            
+        db_connection.commit()
+        db_connection.close()
+
+
+    def getscoresinfo():
+        db_connection = sqlite3.connect('quizbasket.db')
+        c = db_connection.cursor()
+
+        data = []
+        c.execute('''SELECT playerName, score FROM participations ORDER BY score DESC''')
+        results = c.fetchall()
+
+        for score_participants in results:
+            player_name = score_participants[0]
+            score = score_participants[1]
+            data.append({'playerName': player_name, 'score': score})
+
+            
+        db_connection.close()
+
+        return data
+
+
+class ParticipantAnswers:
+    def __init__(self, id=None, participation_id=None, answer=None):
+        self.id = id
+        self.participation_id = participation_id
+        self.answer = answer
+
+    def to_json(self):
+        return {
+            'participation_id': self.participation_id,
+            'answer': self.answer,
+        }
+    
+    @staticmethod
+    def from_json(json_data):
+        participation_id = json_data.get('participation_id')
+        answer = json_data.get('answer')
+        return ParticipantAnswers(participation_id, answer)
+
+
+
+
+
+        # incrémenter la valeur à chaque passage et comparer a la position de la question

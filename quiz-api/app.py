@@ -2,13 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import hashlib
 from jwt_utils import build_token,decode_token,JwtError
-from question_model import Question
+from question_model import Question, Participations
 
 
 
 app = Flask(__name__)
 CORS(app)
-
 
 password_hash = 'd8170650479293c12e0201e5fdf45f40'  # Mot de passe 'password' en MD5
 
@@ -19,7 +18,13 @@ def hello_world():
 
 @app.route('/quiz-info', methods=['GET'])
 def GetQuizInfo():
-	return {"size": 0, "scores": []}, 200
+    quiz_size = Question.getquizinfo()
+    quiz_score = Participations.getscoresinfo()
+    return {"size": quiz_size, "scores": quiz_score}, 200
+
+
+
+
 
 
 @app.route('/login', methods=['POST'])
@@ -61,30 +66,25 @@ def add_question():
     question.add_question_todb()
 
     return jsonify({'id': question.id}), 200
-"""
-@app.route('/questions/<int:id>', methods=['PUT'])
-def set_question(id):
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return jsonify({'error': 'Unauthorized'}), 401
-    token = auth_header.split(' ')[1]
 
-    try:
-        user_id = decode_token(token)
-    except JwtError as e:
-        return jsonify({'error': str(e)}), 4
+@app.route('/participations', methods=['POST'])
+def add_participant():
+    data = request.get_json()
 
-    #récupèrer un l'objet json envoyé dans le body de la requète
-    data=request.get_json()
+    # Créer un objet Participations avec les données fournies
+    participant = Participations.from_json(data)
 
-    # créer un nouvel objet Question à partir des données JSON
-    question = Question.from_json(data)
+    # Ajouter le participant à la base de données
+    
+    if(Question.getquizinfo() > len(data['answers'])):
+        return jsonify({'error': "Il manque des réponses à des questions"}), 400
+    elif (Question.getquizinfo() < len(data['answers'])):
+        return jsonify({'error': "Il y a trop de questions par rapport aux réponses"}), 400
+    else:
+        participant.add_participant_to_db()
+        return participant.to_json(), 200
+    
 
-
-    question.set_question_todb(id)
-
-    return jsonify({'id': question.id}), 200
-"""
 
 @app.route('/questions/<int:id>', methods=['DELETE'])
 def del_question(id):
@@ -99,11 +99,12 @@ def del_question(id):
         return jsonify({'error': str(e)}), 401
 
     if (Question.check_if_question_exists(id) ):  
-        deleted = Question.delete_question_todb(id)
-        if deleted:
-            return jsonify({'message': f'Question with id {id} deleted successfully'}), 204
+        Question.delete_question_todb(id)
+        return jsonify({'message': f'Question with id {id} deleted successfully'}), 204
     else:
-         return jsonify({'message': 'Question not found'}), 404
+        return jsonify({'message': 'Question not found'}), 404
+    
+
     
 @app.route('/questions/all', methods=['DELETE'])
 def del_all_question():
@@ -160,9 +161,6 @@ def update_question(id):
         #récupèrer un l'objet json envoyé dans le body de la requète
         data=request.get_json()
         question = Question.from_json(data)
-
-        # Récupérer la position de la question de la requête
-        position = data.get('position')
 
         # Mettre à jour la question avec la position de la requête
         question.update_question_todb(id)
