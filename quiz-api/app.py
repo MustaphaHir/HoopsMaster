@@ -175,7 +175,8 @@ def getall_question():
         question = Question.extract_all_questions()
         return question, 200
     
-    
+
+
 
 
 
@@ -195,8 +196,6 @@ def get_questions_by_position():
     return get_questions_by_id(Question.find_id_from_position(position))
 
 
-
-    
 
 
 

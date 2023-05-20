@@ -499,6 +499,7 @@ class Participations:
         db_connection.close()
 
         return data
+    
 
 
 class ParticipantAnswers:
