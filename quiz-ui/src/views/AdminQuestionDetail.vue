@@ -1,21 +1,99 @@
 <template>
-  <div>
-    <h2 v-if="question">{{ question.title }}</h2>
-    <img v-if="question && question.image" :src="question.image" />
-    <h3 v-if="question">{{ question.text }}</h3>
+  <div class="admin-question-detail">
+    <h2 v-if="question" class="question-title">{{ question.title }}</h2>
+    <div v-if="question" class="question-container">
+      <img v-if="question.image" :src="question.image" alt="Question Image" class="question-image" />
+      <h3 class="question-text">{{ question.text }}</h3>
+    </div>
 
-    <ul v-if="question">
-      <li v-for="option in question.possibleAnswers" :key="option.id" @click="selectOption(option)">
-        {{ option.text }}
-        <span v-if="option.isCorrect">✅</span>
+    <ul v-if="question" class="options-list">
+      <li v-for="option in question.possibleAnswers" :key="option.id" class="option-item">
+        <span class="option-text">{{ option.text }}</span>
+        <span v-if="option.isCorrect" class="correct-mark">✅</span>
       </li>
     </ul>
 
-    <button @click="editQuestion">Éditer</button>
-    <button @click="deleteQuestion">Supprimer</button>
+    <div class="button-container">
+      <button @click="editQuestion" class="edit-button">Éditer</button>
+      <button @click="deleteQuestion" class="delete-button">Supprimer</button>
+    </div>
   </div>
 </template>
 
+<style scoped>
+.admin-question-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.question-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.question-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.question-image {
+  max-width: 100%;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.question-text {
+  font-size: 18px;
+}
+
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.option-item {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.option-text {
+  margin-right: 10px;
+}
+
+.correct-mark {
+  color: #4caf50;
+  font-size: 18px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.edit-button,
+.delete-button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  background-color: #45a049;
+}
+</style>
 
 <script>
 import { ref, onMounted } from 'vue';

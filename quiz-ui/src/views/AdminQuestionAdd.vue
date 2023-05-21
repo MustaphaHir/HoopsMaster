@@ -3,16 +3,16 @@
     <h2>Ajout d'une nouvelle question</h2>
 
     <form @submit.prevent="submitForm" v-if="question">
-      <label for="position">Position:</label>
+      <label for="position">Position :</label>
       <input type="number" id="position" v-model="question.position" required>
 
-      <label for="title">Titre:</label>
+      <label for="title">Titre :</label>
       <input type="text" id="title" v-model="question.title" required>
 
-      <label for="text">Intitulé:</label>
+      <label for="text">Texte :</label>
       <textarea id="text" v-model="question.text" required></textarea>
 
-      <label for="image">Image:</label>
+      <label for="image">Image :</label>
       <input type="file" id="image" @change="handleImageUpload" accept="image/*">
       <img v-if="imagePreview" :src="imagePreview" alt="Preview">
 

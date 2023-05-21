@@ -487,13 +487,47 @@ class Participations:
         c = db_connection.cursor()
 
         data = []
-        c.execute('''SELECT playerName, score FROM participations ORDER BY score DESC''')
+        c.execute('''SELECT playerName, score FROM participations ORDER BY score DESC LIMIT 7''')
         results = c.fetchall()
 
         for score_participants in results:
             player_name = score_participants[0]
             score = score_participants[1]
             data.append({'playerName': player_name, 'score': score})
+
+            
+        db_connection.close()
+
+        return data
+    
+    def getallscores():
+        db_connection = sqlite3.connect('quizbasket.db')
+        c = db_connection.cursor()
+
+        data = []
+        c.execute('''SELECT score FROM participations''')
+        results = c.fetchall()
+
+        for score_participants in results:
+            score = score_participants[0]
+            data.append(score)
+
+            
+        db_connection.close()
+
+        return data
+    
+    def getallplayername():
+        db_connection = sqlite3.connect('quizbasket.db')
+        c = db_connection.cursor()
+
+        data = []
+        c.execute('''SELECT playerNAME FROM participations''')
+        results = c.fetchall()
+
+        for playerName in results:
+            playerName = playerName[0]
+            data.append(playerName)
 
             
         db_connection.close()

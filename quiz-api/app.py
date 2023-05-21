@@ -209,6 +209,46 @@ def get_questions_by_position():
     position = request.args.get('position')
     return get_questions_by_id(Question.find_id_from_position(position))
 
+@app.route('/scorepercentage', methods=['GET'])
+def calculate_score_percentage():
+    score_user = int(request.args.get('score'))
+
+    # Obtenez les scores des autres utilisateurs (à remplacer par votre logique pour obtenir les scores des autres utilisateurs)
+    other_scores = Participations.getallscores()
+
+    # Triez les scores des autres utilisateurs par ordre décroissant
+    sorted_scores = sorted(other_scores, reverse=True)
+
+    # Trouvez la position du score de l'utilisateur parmi les autres scores
+    user_position = sorted_scores.index(score_user) + 1
+
+    # Calculez le pourcentage du score de l'utilisateur par rapport aux autres utilisateurs
+    score_percentage = (user_position / len(sorted_scores)) * 100
+
+    return jsonify(score_percentage),200
+
+@app.route('/playername', methods=['GET'])
+def getPlayerName():
+    playerName = request.args.get('username')
+
+    # Obtenez les usernames des autres utilisateurs
+    allPlayerNames = Participations.getallplayername()
+
+    if playerName in allPlayerNames:
+        return jsonify({"data": True}), 200
+    else:
+        return jsonify({"data": False}), 200
+
+
+
+
+
+
+
+
+
+
+
 
 
 

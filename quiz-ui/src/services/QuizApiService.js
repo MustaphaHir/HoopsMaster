@@ -54,5 +54,11 @@ export default {
   },
   addParticipant(participantData) {
     return this.call("post", "participations", participantData);
+  },
+  getPercentageScore(userScore) {
+    return this.call("get", `scorepercentage?score=${userScore}`);
+  },
+  checkUsername(username) {
+    return this.call("get", `playername?username=${username}`);
   }
 };

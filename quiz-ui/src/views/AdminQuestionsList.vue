@@ -1,17 +1,19 @@
 <template>
-  <div>
-    <button @click="createQuestion">Créer une question</button>
-    <h2>Liste des questions</h2>
-    <ul>
-      <li v-for="question in state.questions" :key="question.id">
+  <div class="admin-questions-list">
+    <div class="button-container">
+      <button @click="createQuestion" class="create-question-button">Créer une question</button>
+    </div>
+    <h2 class="questions-title">Liste des questions</h2>
+    <ul class="questions-list">
+      <li v-for="question in state.questions" :key="question.id" class="question-item">
         <div class="question-container">
           <div class="question-info">
-            <h3>{{ question.position }}. {{ question.title }}</h3>
-            <p>{{ question.text }}</p>
+            <h3 class="question-heading">{{ question.position }}. {{ question.title }}</h3>
+            <p class="question-text">{{ question.text }}</p>
+            <router-link :to="`/admin/question-detail/${question.position}`" class="details-link">Détails</router-link>
           </div>
           <div class="question-photo">
-            <img :src="question.photo" alt="Question Photo" />
-            <router-link :to="`/admin/question-detail/${question.position}`">Détails</router-link>
+            <img :src="question.photo" alt="Question Photo" class="question-image" />
           </div>
         </div>
       </li>
@@ -19,15 +21,78 @@
   </div>
 </template>
 
-<style>
+<style scoped>
+.admin-questions-list {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.create-question-button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-question-button:hover {
+  background-color: #45a049;
+}
+
+.questions-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.questions-list {
+  list-style: none;
+  padding: 0;
+}
+
+.question-item {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
 .question-container {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .question-info {
   flex: 1;
+}
+
+.question-heading {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.question-text {
+  margin-bottom: 10px;
+}
+
+.details-link {
+  color: #4caf50;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.details-link:hover {
+  color: #45a049;
 }
 
 .question-photo {
@@ -35,8 +100,9 @@
   margin-left: 20px;
 }
 
-.question-photo img {
+.question-image {
   max-width: 100%;
+  border-radius: 5px;
 }
 </style>
 
