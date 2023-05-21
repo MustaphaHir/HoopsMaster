@@ -38,13 +38,13 @@ export default {
     return this.call("post", "login", { password });
   },
   getQuestion(position) {
-    return this.call("get", `questions/${position}`);
+    return this.call("get", `questions?position=${position}`);
   },
   getAllQuestions() {
     return this.call("get", "export");
   },
   deleteQuestionbyPosition(questionPosition) {
-    return this.call("delete", `questions/${questionPosition}`);
+    return this.call("delete", `questions?position=${questionPosition}`);
   },
   addQuestion(questionData) {
     return this.call("post", "questions", questionData);

@@ -105,8 +105,8 @@ def del_question(id):
         return jsonify({'message': 'Question not found'}), 404
     
 
-@app.route('/questions/<int:position>', methods=['DELETE'])
-def del_questionbyPösition(position):
+@app.route('/questions', methods=['DELETE'])
+def del_questionbyPosition():
     auth_header = request.headers.get('Authorization')
     if not auth_header:
         return jsonify({'error': 'Unauthorized'}), 401
