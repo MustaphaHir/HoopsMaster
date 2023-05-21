@@ -19,5 +19,14 @@ export default {
   },
   getTotalNumberOfQuestions() {
     return window.localStorage.getItem("totalNumberOfQuestions");
+  },
+  saveTokenToStorage(token) {
+    return window.localStorage.setItem('token', token);
+  },
+  getToken() {
+    return window.localStorage.getItem('token');
+  },
+  removeTokenFromStorage() {
+    return window.localStorage.removeItem('token');
   }
 };

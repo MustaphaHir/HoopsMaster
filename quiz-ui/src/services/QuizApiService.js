@@ -1,4 +1,5 @@
 import axios from "axios";
+import ParticipationStorageService from '../services/ParticipationStorageService';
 
 const instance = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}`,
@@ -6,12 +7,14 @@ const instance = axios.create({
 });
 
 export default {
-  async call(method, resource, data = null, token = null) {
+  async call(method, resource, data = null) {
     var headers = {
       "Content-Type": "application/json",
     };
-    if (token != null) {
-      headers.authorization = "Bearer " + token;
+
+    const token = ParticipationStorageService.getToken();
+    if (token) {
+      headers.authorization = `Bearer ${token}`;
     }
 
     try {
@@ -31,9 +34,23 @@ export default {
   getQuizInfo() {
     return this.call("get", "quiz-info");
   },
-
+  authenticate(password) {
+    return this.call("post", "login", { password });
+  },
   getQuestion(position) {
     return this.call("get", `questions/${position}`);
+  },
+  getAllQuestions() {
+    return this.call("get", "export");
+  },
+  deleteQuestionbyPosition(questionPosition) {
+    return this.call("delete", `questions/${questionPosition}`);
+  },
+  addQuestion(questionData) {
+    return this.call("post", "questions", questionData);
+  },
+  updateQuestion(questionPosition, questionData) {
+    return this.call("put", `questions/${questionPosition}`, questionData);
   },
   addParticipant(participantData) {
     return this.call("post", "participations", participantData);

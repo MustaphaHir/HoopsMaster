@@ -54,7 +54,7 @@ def add_question():
     try:
         user_id = decode_token(token)
     except JwtError as e:
-        return jsonify({'error': str(e)}), 4
+        return jsonify({'error': str(e)}), 401
 
     #récupèrer un l'objet json envoyé dans le body de la requète
     data=request.get_json()
@@ -105,6 +105,23 @@ def del_question(id):
         return jsonify({'message': 'Question not found'}), 404
     
 
+@app.route('/questions/<int:position>', methods=['DELETE'])
+def del_questionbyPösition(position):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'error': 'Unauthorized'}), 401
+    token = auth_header.split(' ')[1]
+
+    try:
+        user_id = decode_token(token)
+    except JwtError as e:
+        return jsonify({'error': str(e)}), 401
+
+    position = request.args.get('position')
+
+    return del_question(Question.find_id_from_position(position))
+    
+
     
 @app.route('/questions/all', methods=['DELETE'])
 def del_all_question():
@@ -147,15 +164,6 @@ def del_all_participations():
 
 @app.route('/questions/<id>', methods=['PUT'])
 def update_question(id):
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return jsonify({'error': 'Unauthorized'}), 401
-    token = auth_header.split(' ')[1]
-
-    try:
-        user_id = decode_token(token)
-    except JwtError as e:
-        return jsonify({'error': str(e)}), 401
     
     if (Question.check_if_question_exists(id)):  
         #récupèrer un l'objet json envoyé dans le body de la requète
@@ -168,6 +176,12 @@ def update_question(id):
         return jsonify({'id': question.id}), 204
     else:
         return jsonify({'message': 'Question not found'}), 404
+    
+
+@app.route('/questions/<position>', methods=['PUT'])
+def update_question_by_position(position):
+    
+    return update_question(Question.find_id_from_position(position))
     
 
 @app.route('/export', methods=['GET'])
