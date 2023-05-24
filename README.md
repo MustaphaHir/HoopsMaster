@@ -1,3 +1,0 @@
-# HoopsMaster 
-(Quizz Project)
-
