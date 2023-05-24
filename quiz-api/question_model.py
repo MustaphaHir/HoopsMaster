@@ -270,7 +270,7 @@ class Question:
 
 
                 
-        c.execute('UPDATE question SET title=?, text=?, image=? WHERE id=?', ( self.title, self.text, self.image, self.id))
+        c.execute('UPDATE question SET title=?, text=?, image=? WHERE id=?', ( self.title, self.text, self.image, id))
         
 
         
