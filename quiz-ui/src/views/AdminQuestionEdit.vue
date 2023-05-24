@@ -3,156 +3,51 @@
     <h2>Édition de la question</h2>
 
     <form @submit.prevent="submitForm" v-if="question">
-      <label for="position">Position:</label>
-      <input type="number" id="position" v-model="question.position" required>
+      <div class="form-group">
+        <label for="position">Position:</label>
+        <input type="number" id="position" v-model="question.position" required>
+      </div>
 
-      <label for="title">Titre:</label>
-      <input type="text" id="title" v-model="question.title" required>
+      <div class="form-group">
+        <label for="title">Titre:</label>
+        <input type="text" id="title" v-model="question.title" required>
+      </div>
 
-      <label for="text">Texte :</label>
-      <textarea id="text" v-model="question.text" required></textarea>
+      <div class="form-group">
+        <label for="text">Texte :</label>
+        <textarea id="text" v-model="question.text" required></textarea>
+      </div>
 
-      <label for="image">Image :</label>
-      <input type="file" id="image" @change="handleImageUpload" accept="image/*">
-      <div class="image-preview" v-if="imagePreview">
-        <img :src="imagePreview" alt="Preview">
+      <div class="form-group">
+        <label for="image">Image :</label>
+        <input type="file" id="image" @change="handleImageUpload" accept="image/*">
+        <div class="image-preview" v-if="imagePreview">
+          <img :src="imagePreview" alt="Preview">
+        </div>
       </div>
 
       <h3>Réponses possibles:</h3>
-      <ul>
-        <li v-for="answer in question.possibleAnswers" :key="answer.id">
-          <input type="text" v-model="answer.text" required>
-          <label>
-            <input type="checkbox" v-model="answer.isCorrect">
-            Réponse correcte
-          </label>
+      <ul class="answers-list">
+        <li v-for="answer in question.possibleAnswers" :key="answer.id" class="answer-item">
+          <div class="answer-text-group">
+            <input type="text" v-model="answer.text" required>
+          </div>
+          <div class="answer-correct-group">
+            <label>
+              <input type="checkbox" v-model="answer.isCorrect">
+              Réponse correcte
+            </label>
+          </div>
         </li>
       </ul>
 
-      <div class="buttons">
+      <div class="button-container">
         <button class="save-button" type="submit">Sauvegarder</button>
         <button class="cancel-button" @click.prevent="cancelEdit">Annuler</button>
       </div>
     </form>
   </div>
 </template>
-
-<style>
-.question-edit {
-  padding: 20px;
-}
-
-h2 {
-  color: #ff5252;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-form {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-label {
-  font-weight: bold;
-}
-
-input[type="number"],
-input[type="text"],
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.image-preview {
-  margin-bottom: 20px;
-}
-
-.image-preview img {
-  max-width: 50%;
-}
-
-h3 {
-  color: #4caf50;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-  margin-bottom: 20px;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-li input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-li label {
-  margin-left: 10px;
-}
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-.save-button {
-  background-color: #4caf50;
-  color: #ffffff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  margin-right: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.cancel-button {
-  background-color: #ffffff;
-  color: #4caf50;
-  border: 1px solid #4caf50;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.save-button:hover,
-.cancel-button:hover {
-  background-color: #4caf50;
-  color: #ffffff;
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.fade-in {
-  animation: fade-in 0.5s ease;
-}
-</style>
 
 <script>
 import { ref, onMounted } from 'vue';
@@ -227,3 +122,85 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.question-edit {
+  padding: 2rem;
+}
+
+.question-edit h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.image-preview {
+  margin-top: 1rem;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 200px;
+}
+
+.answers-list {
+  list-style: none;
+  padding: 0;
+}
+
+.answer-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.answer-text-group {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.answer-correct-group {
+  flex-shrink: 0;
+}
+
+.button-container {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #0088cc;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.cancel-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #cc0000;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>

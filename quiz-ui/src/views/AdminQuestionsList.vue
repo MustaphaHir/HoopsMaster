@@ -17,94 +17,12 @@
           </div>
         </div>
       </li>
+      <li v-if="state.questions.length === 0" class="empty-list-message">Aucune question disponible</li>
     </ul>
   </div>
 </template>
 
-<style scoped>
-.admin-questions-list {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
 
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
-.create-question-button {
-  background-color: #4caf50;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.create-question-button:hover {
-  background-color: #45a049;
-}
-
-.questions-title {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.questions-list {
-  list-style: none;
-  padding: 0;
-}
-
-.question-item {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.question-container {
-  display: flex;
-  align-items: center;
-}
-
-.question-info {
-  flex: 1;
-}
-
-.question-heading {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.question-text {
-  margin-bottom: 10px;
-}
-
-.details-link {
-  color: #4caf50;
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-.details-link:hover {
-  color: #45a049;
-}
-
-.question-photo {
-  flex: 0 0 200px;
-  margin-left: 20px;
-}
-
-.question-image {
-  max-width: 100%;
-  border-radius: 5px;
-}
-</style>
 
 <script>
 import { useRouter } from "vue-router";
@@ -150,3 +68,92 @@ export default {
   },
 };
 </script>
+
+
+
+<style scoped>
+.admin-questions-list {
+  padding: 2rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.create-question-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #0088cc;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.questions-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.questions-list {
+  list-style: none;
+  padding: 0;
+}
+
+.question-item {
+  margin-bottom: 2rem;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+
+.question-container {
+  display: flex;
+}
+
+.question-info {
+  flex: 1;
+}
+
+.question-heading {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.question-text {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.details-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #0088cc;
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.question-photo {
+  flex: 0 0 100px;
+  margin-left: 1rem;
+}
+
+.question-image {
+  width: 100%;
+  height: auto;
+}
+
+.empty-list-message {
+  margin-top: 2rem;
+  font-style: italic;
+  text-align: center;
+  color: #808080;
+}
+</style>

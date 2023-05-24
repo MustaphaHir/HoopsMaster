@@ -1,7 +1,7 @@
 <template>
   <div class="score-page">
     <h1 class="title">Score</h1>
-    <div class="score-card">
+    <div class="score-cards">
       <div class="score-info">
         <h2 class="score-label">Votre score :</h2>
         <h2 class="score-value">{{ userScore }} / {{ totalNumberOfQuestions }}</h2>
@@ -39,7 +39,7 @@ export default {
       this.totalNumberOfQuestions = participationStorageService.getTotalNumberOfQuestions();
       QuizApiService.getPercentageScore(this.userScore)
         .then(response => {
-          this.userScorePercentage = Math.round(response.data);
+          this.userScorePercentage = 100 - Math.round(response.data);
         })
         .catch(error => {
           console.error(error);
@@ -57,17 +57,10 @@ export default {
   padding: 2rem;
 }
 
-.title {
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.score-card {
+.score-cards {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f2f2f2;
   padding: 2rem;
   border-radius: 5px;
 }
@@ -91,7 +84,7 @@ export default {
 .percentage-value {
   font-size: 2rem;
   font-weight: bold;
-  color: #0088cc;
+  color: #dd0e0e;
 }
 
 .basketball-animation {

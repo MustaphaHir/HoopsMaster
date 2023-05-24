@@ -60,5 +60,8 @@ export default {
   },
   checkUsername(username) {
     return this.call("get", `playername?username=${username}`);
+  },
+  getRandomQuestions() {
+    return this.call("get", "tenquestions");
   }
 };

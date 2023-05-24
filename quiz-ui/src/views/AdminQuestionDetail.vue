@@ -1,17 +1,24 @@
 <template>
   <div class="admin-question-detail">
-    <h2 v-if="question" class="question-title">{{ question.title }}</h2>
-    <div v-if="question" class="question-container">
-      <img v-if="question.image" :src="question.image" alt="Question Image" class="question-image" />
-      <h3 class="question-text">{{ question.text }}</h3>
+    <div v-if="question" class="question-section">
+      <h2 class="question-title">{{ question.position }} - {{ question.title }}</h2>
     </div>
 
-    <ul v-if="question" class="options-list">
-      <li v-for="option in question.possibleAnswers" :key="option.id" class="option-item">
-        <span class="option-text">{{ option.text }}</span>
-        <span v-if="option.isCorrect" class="correct-mark">✅</span>
-      </li>
-    </ul>
+    <div v-if="question" class="question-section">
+      <div class="question-container">
+        <img v-if="question.image" :src="question.image" alt="Question Image" class="question-image" />
+        <p class="question-text">{{ question.text }}</p>
+      </div>
+    </div>
+
+    <div v-if="question" class="question-section">
+      <div class="options-list">
+        <div v-for="option in question.possibleAnswers" :key="option.id" class="option-item">
+          <span class="option-text">{{ option.text }}</span>
+          <span v-if="option.isCorrect" class="correct-mark"> ✅</span>
+        </div>
+      </div>
+    </div>
 
     <div class="button-container">
       <button @click="editQuestion" class="edit-button">Éditer</button>
@@ -19,81 +26,6 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-.admin-question-detail {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.question-title {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.question-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.question-image {
-  max-width: 100%;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.question-text {
-  font-size: 18px;
-}
-
-.options-list {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 20px;
-}
-
-.option-item {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.option-text {
-  margin-right: 10px;
-}
-
-.correct-mark {
-  color: #4caf50;
-  font-size: 18px;
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.edit-button,
-.delete-button {
-  background-color: #4caf50;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-left: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.edit-button:hover,
-.delete-button:hover {
-  background-color: #45a049;
-}
-</style>
 
 <script>
 import { ref, onMounted } from 'vue';
@@ -141,3 +73,78 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.admin-question-detail {
+  padding: 2rem;
+}
+
+.question-section {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.question-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.question-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.question-image {
+  width: 150px;
+  height: auto;
+  margin-right: 1rem;
+}
+
+.question-text {
+  font-size: 1.2rem;
+}
+
+.options-list {
+  margin-bottom: 2rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.option-text {
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.correct-mark {
+  color: green;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.edit-button,
+.delete-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #0088cc;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.delete-button {
+  background-color: #cc0000;
+}
+</style>

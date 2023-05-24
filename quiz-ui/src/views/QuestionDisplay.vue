@@ -5,16 +5,19 @@
       <img v-if="question && question.data.image" :src="question.data.image" />
       <h3 v-if="question">{{ question.data.text }}</h3>
     </div>
+    <div class="radio-input">
+      <ul v-if="question" class="answers-list">
+        <li v-for="option in question.data.possibleAnswers" :key="option.id" class="answer-item">
 
-    <ul v-if="question" class="answers-list">
-      <li v-for="option in question.data.possibleAnswers" :key="option.id" class="answer-item">
-        <label>
-          <input type="radio" v-model="selectedOption" :value="option.id" class="answer-input" />
-          <span class="answer-text">{{ option.text }}</span>
-        </label>
-      </li>
-    </ul>
+          <label class="checkbox-container">
+            <input type="radio" v-model="selectedOption" :value="option.id" class="input" />
+            <span class="checkmark"></span>
+            <span class="answer-text">{{ option.text }}</span>
+          </label>
 
+        </li>
+      </ul>
+    </div>
     <button @click="nextQuestion" class="next-button">Question suivante</button>
   </div>
 </template>
@@ -48,6 +51,17 @@ export default {
 </script>
 
 <style scoped>
+.checkbox-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding-right: 30px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 .question-display {
   max-width: 500px;
   margin: 0 auto;
@@ -69,7 +83,7 @@ img {
 }
 
 h3 {
-  font-size: 18px;
+  font-size: 25px;
   margin-bottom: 10px;
 }
 
@@ -81,6 +95,7 @@ h3 {
 
 .answer-item {
   margin-bottom: 10px;
+  font-size: 25px;
 }
 
 .answer-input {
@@ -88,7 +103,53 @@ h3 {
 }
 
 .answer-text {
-  font-size: 16px;
+  font-size: 25px;
+  margin-left: 13px;
+}
+
+
+.input {
+  -webkit-appearance: none;
+  /* remove default */
+  display: block;
+  margin: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  vertical-align: middle;
+  box-shadow: hsla(0, 0%, 100%, .15) 0 1px 1px, inset hsla(0, 0%, 0%, .5) 0 0 0 1px;
+  background-color: hsla(0, 0%, 0%, .2);
+  background-image: -webkit-radial-gradient(hsla(200, 100%, 90%, 1) 0%, rgb(224, 17, 17) 15%, rgb(224, 17, 17) 28%, rgb(224, 17, 17) 70%);
+  background-repeat: no-repeat;
+  -webkit-transition: background-position .15s cubic-bezier(.8, 0, 1, 1),
+    -webkit-transform .25s cubic-bezier(.8, 0, 1, 1);
+  outline: none;
+}
+
+
+
+.input:active {
+  -webkit-transform: scale(1.5);
+  -webkit-transition: -webkit-transform .1s cubic-bezier(0, 0, .2, 1);
+}
+
+
+
+/* The up/down direction logic */
+
+.input,
+.input:active {
+  background-position: 0 24px;
+}
+
+.input:checked {
+  background-position: 0 0;
+}
+
+.input:checked~.input,
+.input:checked~.input:active {
+  background-position: 0 -24px;
 }
 
 .next-button {
