@@ -1,17 +1,18 @@
 import sqlite3
 import json
 
+
 class Question:
     def __init__(self, id=None, position=None, title=None, text=None, image=None, possible_answers=[]):
         self.id = id
         self.position = position
         self.title = title
         self.text = text
-        self.image=image
+        self.image = image
         self.possible_answers = possible_answers
 
     def to_json(self):
-        possible_answers = [possible_answers.to_json() for possible_answers in self.possible_answers] if self.possible_answers else []
+        possible_answers = [possible_answer.to_json() for possible_answer in self.possible_answers] if self.possible_answers else []
         return {
             'id': self.id,
             'position': self.position,
@@ -20,8 +21,7 @@ class Question:
             'image': self.image,
             'possibleAnswers': possible_answers
         }
-    
-    @staticmethod
+
     def from_json(json_data):
         id = json_data.get('id')
         position = json_data.get('position')
@@ -29,55 +29,38 @@ class Question:
         text = json_data.get('text')
         image = json_data.get('image')
         possible_answers = json_data.get('possibleAnswers')
-    
-
         return Question(id, position, title, text, image, possible_answers)
-    
-    """
-    def check_if_question_exists_in_position(self):
-        db_connection = sqlite3.connect('quizbasket.db')
-        db_connection.isolation_level = None
-        c = db_connection.cursor()
-
-        # Check if a question already exists at the desired position
-        c.execute('''SELECT * FROM question WHERE position = ?''', (self.position,))
-        existing_question = c.fetchone()
-
-        if existing_question:
-            # If a question already exists at the desired position, increment the position of all questions after that position by 1
-            c.execute('''SELECT id FROM question WHERE position >= ? ORDER BY position DESC''', (self.position,))
-            for row in c.fetchall():
-                c.execute('''UPDATE question SET position = position + 1 WHERE id = ?''', (row[0],))
-    """
 
     def add_question_todb(self):
         db_connection = sqlite3.connect('quizbasket.db')
         db_connection.isolation_level = None
         c = db_connection.cursor()
 
-        # Check if a question already exists at the desired position
         c.execute('''SELECT * FROM question WHERE position = ?''', (self.position,))
         existing_question = c.fetchone()
 
         if existing_question:
-            # If a question already exists at the desired position, increment the position of all questions after that position by 1
             c.execute('''SELECT id FROM question WHERE position >= ? ORDER BY position DESC''', (self.position,))
             for row in c.fetchall():
                 c.execute('''UPDATE question SET position = position + 1 WHERE id = ?''', (row[0],))
 
-        # Insert the new question at the desired position
-        c.execute('''INSERT INTO question (position, title, text, image) VALUES (?, ?, ?, ?)''', (self.position, self.title, self.text, self.image))
+        c.execute(
+            '''INSERT INTO question (position, title, text, image) VALUES (?, ?, ?, ?)''',
+            (self.position, self.title, self.text, self.image)
+        )
 
         self.id = c.lastrowid
 
         for possible_answer_data in self.possible_answers:
             possible_answer = PossibleAnswer.from_json(possible_answer_data)
             possible_answer.question_id = self.id
-            c.execute('''INSERT INTO possible_answers (text, is_correct, question_id) VALUES (?, ?, ?)''', (possible_answer.text, possible_answer.is_correct, self.id))
+            c.execute(
+                '''INSERT INTO possible_answers (text, is_correct, question_id) VALUES (?, ?, ?)''',
+                (possible_answer.text, possible_answer.is_correct, self.id)
+            )
 
         db_connection.commit()
         db_connection.close()
-
 
     def getquizinfo():
         db_connection = sqlite3.connect('quizbasket.db')
@@ -91,33 +74,61 @@ class Question:
         return num_questions
     
 
-    """
-    def set_question_todb(self,id):
+    def rebuild_db():
         db_connection = sqlite3.connect('quizbasket.db')
-        db_connection.isolation_level = None
         c = db_connection.cursor()
 
-        c.execute('''SELECT * FROM question WHERE id = ?''', (id,))
-        existing_question = c.fetchone()
+        c.execute("""CREATE TABLE "question" (
+            "id"	INTEGER,
+            "position"	INTEGER NOT NULL,
+            "title"	TEXT NOT NULL,
+            "text"	TEXT NOT NULL,
+            "image"	TEXT,
+            PRIMARY KEY("id")
+        );
+        """)
 
-        if existing_question:
-            # If a question already exists at the desired position, increment the position of all questions after that position by 1
-            c.execute('''SELECT id FROM question WHERE position >= ? ORDER BY position DESC''', (self.position,))
-            for row in c.fetchall():
-                c.execute('''UPDATE question SET position = position + 1 WHERE id = ?''', (row[0],))
+        c.execute("""CREATE TABLE "possible_answers" (
+            "id"	INTEGER,
+            "text"	TEXT NOT NULL,
+            "is_correct"	INTEGER NOT NULL,
+            "question_id"	INTEGER NOT NULL,
+            PRIMARY KEY("id"),
+            FOREIGN KEY("question_id") REFERENCES "question"("id") ON DELETE CASCADE
+        );
+        """)
 
-        # Insert the new question at the desired position
-        c.execute('''UPDATE question SET position = ? WHERE id = ?''', (self.position, id))
+        c.execute("""
+            CREATE TABLE "participations" (
+                "id"	INTEGER,
+                "playerName"	TEXT,
+                "SCORE"	INTEGER,
+                PRIMARY KEY("id" AUTOINCREMENT)
+            );
+
+        """)
+
+
+        c.execute("""
+            CREATE TABLE "participant_answers" (
+            "id"	INTEGER,
+            "participation_id"	INTEGER,
+            "answer"	NUMERIC,
+            PRIMARY KEY("id" AUTOINCREMENT),
+            FOREIGN KEY("participation_id") REFERENCES "participations"("id")
+        );
+        """)
+
 
         db_connection.commit()
         db_connection.close()
-    """
+
+    
+        
+    
 
     def delete_question_todb(id):
         db_connection = sqlite3.connect('quizbasket.db')
-
-        # set the sqlite connection in "manual transaction mode"
-        # (by default, all execute calls are performed in their own transactions, not what we want)
         db_connection.isolation_level = None
 
         c = db_connection.cursor()
@@ -133,64 +144,57 @@ class Question:
             c.execute(f'''DELETE FROM possible_answers WHERE question_id  = {id}''')
             c.execute('''UPDATE question SET position = position - 1 WHERE position >= ?''', (current_position,))
 
-        # get the number of rows affected by the query
+     
         num_rows_deleted = c.rowcount
 
         db_connection.commit()
 
         db_connection.close()
     
-        # return the number of rows deleted
+      
         return num_rows_deleted
 
     def delete_all_questions_todb():
             db_connection = sqlite3.connect('quizbasket.db')
-
-            # set the sqlite connection in "manual transaction mode"
-            # (by default, all execute calls are performed in their own transactions, not what we want)
             db_connection.isolation_level = None
 
             c = db_connection.cursor()
             c.execute(f'''DELETE FROM question''')
             c.execute(f'''DELETE FROM possible_answers''')
-            # get the number of rows affected by the query
+      
             num_rows_deleted = c.rowcount
 
             db_connection.commit()
 
             db_connection.close()
         
-            # return the number of rows deleted
+           
             return num_rows_deleted
     
     def delete_all_participants_todb():
             db_connection = sqlite3.connect('quizbasket.db')
 
-            # set the sqlite connection in "manual transaction mode"
-            # (by default, all execute calls are performed in their own transactions, not what we want)
             db_connection.isolation_level = None
 
             c = db_connection.cursor()
             c.execute('''DELETE FROM participations''')
-            # get the number of rows affected by the query
+            c.execute('''DELETE FROM participant_answers''')
+            
             num_rows_deleted = c.rowcount
 
             db_connection.commit()
 
             db_connection.close()
         
-            # return the number of rows deleted
+          
             return num_rows_deleted
 
     def find_id_from_position(position):
         db_connection = sqlite3.connect('quizbasket.db')
 
-        # set the sqlite connection in "manual transaction mode"
-        # (by default, all execute calls are performed in their own transactions, not what we want)
         db_connection.isolation_level = None
 
         c = db_connection.cursor()
-#       c.execute(f'INSERT INTO question (position, title, text, image) VALUES ({self.position}, "{self.title}", "{self.text}", "{self.image}")')
         c.execute('''SELECT id FROM question WHERE position=?''', (position,))
         
         row = c.fetchone()
@@ -247,37 +251,32 @@ class Question:
 
 
 
-
-
-
     def update_question_todb(self, id):
         db_connection = sqlite3.connect('quizbasket.db')
         db_connection.isolation_level = None
         c = db_connection.cursor()
 
-        # Get the current position of the question
+        
         c.execute('''SELECT position FROM question WHERE id = ?''', (id,))
         current_position = c.fetchone()[0]
 
         if self.position != current_position:
             if self.position > current_position:
-                # Shift all questions with positions between the current position and the new position down by 1
                 c.execute('''UPDATE question SET position = position - 1 WHERE position > ? AND position <= ?''', (current_position, self.position))
                 c.execute('''UPDATE question SET position = ? WHERE id = ?''', (self.position, id))
             elif self.position < current_position:
-                # Shift all questions with positions between the new position and the current position up by 1
                 c.execute('''UPDATE question SET position = position + 1 WHERE position >= ? AND position < ?''', (self.position, current_position))
                 c.execute('''UPDATE question SET position = ? WHERE id = ?''', (self.position, id))
 
 
-                # Update question
-        c.execute('UPDATE question SET title=?, text=?, image=? WHERE id=?', ( self.title, self.text, self.image, id))
+                
+        c.execute('UPDATE question SET title=?, text=?, image=? WHERE id=?', ( self.title, self.text, self.image, self.id))
         
 
-        # Delete existing possible answers for the question
+        
         c.execute('DELETE FROM possible_answers WHERE question_id=?', (id,))
 
-        # Insert possible answers for the question
+        
         for possible_answer_data in self.possible_answers:
             possible_answer = PossibleAnswer.from_json(possible_answer_data)
             possible_answer.question_id = id
@@ -311,7 +310,6 @@ class PossibleAnswer:
             'question_id': self.question_id
         }
 
-    @staticmethod
     def from_json(json_data):
         id = json_data.get('id')
         question_id = json_data.get('question_id')
@@ -364,7 +362,6 @@ class PossibleAnswer:
             'question_id': self.question_id
         }
 
-    @staticmethod
     def from_json(json_data):
         id = json_data.get('id')
         question_id = json_data.get('question_id')
@@ -413,7 +410,6 @@ class Participations:
         }
     
 
-    @staticmethod
     def from_json(json_data):
         id = json_data.get('id')
         playerName = json_data.get('playerName')
@@ -471,9 +467,8 @@ class Participations:
         for answer_data in self.answers:
             c.execute('''INSERT INTO participant_answers (participation_id, answer) VALUES (?, ?)''',
                       (self.id, answer_data))
-        
-        #self.score = Participations.get_score_of_participants(self.id)
-        
+
+
         c.execute('''UPDATE participations SET score = ? WHERE id = ?''', (self.get_score_of_participants(), self.id))
 
         
@@ -548,14 +543,9 @@ class ParticipantAnswers:
             'answer': self.answer,
         }
     
-    @staticmethod
     def from_json(json_data):
         participation_id = json_data.get('participation_id')
         answer = json_data.get('answer')
         return ParticipantAnswers(participation_id, answer)
 
 
-
-
-
-        # incrémenter la valeur à chaque passage et comparer a la position de la question

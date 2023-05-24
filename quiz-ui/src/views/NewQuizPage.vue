@@ -1,14 +1,12 @@
 <template>
   <div class="new-quiz-page">
-    <h1>Participation au quiz</h1>
-    <form @submit.prevent="launchNewQuiz">
-      <div class="form-group">
-        <label for="playerName">Nom du joueur</label>
-        <input type="text" class="form-control" id="playerName" v-model="username" required />
-        <p v-if="wrongUsername" class="error-message">Ce nom d'utilisateur est déjà pris. Veuillez en choisir un autre.
-        </p>
+    <h1 class="title">Participation au quiz</h1>
+    <form @submit.prevent="launchNewQuiz" class="form">
+      <div class="input">
+        <input type="text" placeholder="Nom du joueur" id="playerName" v-model="username" required />
       </div>
-      <button type="submit" class="btn btn-primary">Commencer le quiz</button>
+      <p v-if="wrongUsername" class="error-message">Ce nom d'utilisateur est déjà pris. Veuillez en choisir un autre.</p>
+      <button type="submit" class="start-quiz-button">Commencer le quiz !</button>
     </form>
   </div>
 </template>
@@ -21,7 +19,7 @@ export default {
   data() {
     return {
       username: "",
-      wrongUsername: false
+      wrongUsername: false,
     };
   },
   methods: {
@@ -34,7 +32,6 @@ export default {
       }
 
       participationStorageService.savePlayerName(this.username);
-
       this.$router.push('/questions');
     },
   },
@@ -43,49 +40,63 @@ export default {
 
 <style scoped>
 .new-quiz-page {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
 }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+.title {
+  font-size: 3rem;
+  margin-bottom: 2rem;
 }
 
-.form-group {
-  margin-bottom: 20px;
-  text-align: left;
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input {
+  margin-bottom: 1.5rem;
+
+}
+
+input {
+  width: 300px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 label {
+  font-size: 1rem;
   font-weight: bold;
 }
 
-input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 .error-message {
-  color: #ff5252;
-  margin-top: 10px;
+  color: black;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
-.btn-primary {
-  background-color: #ff5252;
-  color: #ffffff;
+.start-quiz-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #ff5f58;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: transform 0.3s ease;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.btn-primary:hover {
-  background-color: #ff1744;
+.start-quiz-button:hover {
+  transform: translateY(-2px);
 }
 </style>
