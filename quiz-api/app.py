@@ -34,7 +34,7 @@ def Rebuild_db():
     
     try:
         Question.rebuild_db()  # Appeler la fonction rebuild_db() pour créer les tables
-        return jsonify({'message': 'Database successfully rebuilt'}), 200
+        return jsonify({'Ok'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
