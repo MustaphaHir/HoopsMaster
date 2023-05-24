@@ -30,11 +30,7 @@ export default {
       try {
         
         if (this.password === 'admin123') {
-<<<<<<< HEAD
           
-=======
-          // Appeler la fonction authenticate() de QuizApiService
->>>>>>> 127757bde64c0d5849ea9fc20a480c1fcd953a26
           QuizApiService.authenticate('flask2023')
             .then(response => {
              
